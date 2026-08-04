@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: order-management-db
+    environment:
+      POSTGRES_DB: order_management
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5433:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: order-management-backend
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/order_management?schema=public
+      PORT: 3000
+      CORS_ORIGIN: '*'
+      STATUS_PREPARING_DELAY: 10000
+      STATUS_DELIVERY_DELAY: 10000
+      STATUS_DELIVERED_DELAY: 10000
+      NODE_ENV: production
+    ports:
+      - '3000:3000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:
