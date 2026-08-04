@@ -53,6 +53,28 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       ) {
         code = ErrorCode.VALIDATION_ERROR;
       }
+    } else if (
+      typeof exception === 'object' &&
+      exception !== null &&
+      'code' in exception &&
+      typeof (exception as any).code === 'string' &&
+      (exception as any).code.startsWith('P2')
+    ) {
+      const prismaError = exception as { code: string; message: string; meta?: any };
+      if (prismaError.code === 'P2025') {
+        statusCode = 404;
+        code = ErrorCode.RESOURCE_NOT_FOUND;
+        message = 'Record not found';
+      } else if (prismaError.code === 'P2002') {
+        statusCode = 409;
+        code = ErrorCode.RESOURCE_CONFLICT;
+        message = 'Unique constraint failed';
+      } else {
+        statusCode = 400;
+        code = ErrorCode.DATABASE_ERROR;
+        message = 'Database request failed';
+      }
+      this.logger.warn(`Prisma Error [${prismaError.code}]: ${prismaError.message}`);
     } else {
       this.logger.error(
         `Unhandled Exception: ${(exception as Error).message}`,

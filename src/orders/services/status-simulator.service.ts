@@ -124,6 +124,7 @@ export class StatusSimulatorService implements OnModuleDestroy {
       const updatedOrder = await this.orderRepository.updateStatus(
         orderId,
         targetStatus,
+        expectedCurrentStatus,
       );
       this.eventPublisher.publishStatusUpdated(
         orderId,

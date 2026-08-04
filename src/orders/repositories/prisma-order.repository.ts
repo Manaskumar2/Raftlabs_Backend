@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { OrderStatus } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
@@ -95,10 +95,25 @@ export class PrismaOrderRepository implements OrderRepository {
     });
   }
 
-  async updateStatus(id: string, status: OrderStatus): Promise<OrderWithItems> {
-    return this.prisma.order.update({
+  async updateStatus(id: string, status: OrderStatus, expectedCurrentStatus?: OrderStatus): Promise<OrderWithItems> {
+    if (expectedCurrentStatus) {
+      const result = await this.prisma.order.updateMany({
+        where: { id, status: expectedCurrentStatus },
+        data: { status },
+      });
+
+      if (result.count === 0) {
+        throw new ConflictException(`Race condition detected or order not found: unable to update order ${id} from ${expectedCurrentStatus} to ${status}`);
+      }
+    } else {
+      await this.prisma.order.update({
+        where: { id },
+        data: { status },
+      });
+    }
+
+    return this.prisma.order.findUniqueOrThrow({
       where: { id },
-      data: { status },
       include: { items: { include: { menuItem: true } } },
     });
   }

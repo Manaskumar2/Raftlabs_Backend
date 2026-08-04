@@ -256,6 +256,7 @@ describe('OrdersService', () => {
       expect(orderRepository.updateStatus).toHaveBeenCalledWith(
         'order-1',
         OrderStatus.CANCELLED,
+        OrderStatus.ORDER_RECEIVED,
       );
       expect(eventPublisher.publishStatusUpdated).toHaveBeenCalledWith(
         'order-1',
@@ -283,6 +284,7 @@ describe('OrdersService', () => {
       expect(orderRepository.updateStatus).toHaveBeenCalledWith(
         'order-1',
         OrderStatus.CANCELLED,
+        OrderStatus.PREPARING,
       );
       expect(result.status).toBe(OrderStatus.CANCELLED);
     });
@@ -317,6 +319,7 @@ describe('OrdersService', () => {
       expect(orderRepository.updateStatus).toHaveBeenCalledWith(
         'order-1',
         OrderStatus.PREPARING,
+        OrderStatus.ORDER_RECEIVED,
       );
       expect(eventPublisher.publishStatusUpdated).toHaveBeenCalledWith(
         'order-1',

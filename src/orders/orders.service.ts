@@ -161,6 +161,7 @@ export class OrdersService {
     const cancelledOrder = await this.orderRepository.updateStatus(
       id,
       OrderStatus.CANCELLED,
+      order.status,
     );
 
     this.eventPublisher.publishStatusUpdated(
@@ -185,6 +186,7 @@ export class OrdersService {
     const updatedOrder = await this.orderRepository.updateStatus(
       id,
       dto.status,
+      order.status,
     );
 
     this.eventPublisher.publishStatusUpdated(

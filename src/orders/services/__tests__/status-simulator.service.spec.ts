@@ -86,6 +86,7 @@ describe('StatusSimulatorService', () => {
       expect(orderRepository.updateStatus).toHaveBeenCalledWith(
         'order-1',
         OrderStatus.PREPARING,
+        OrderStatus.ORDER_RECEIVED,
       );
       expect(eventPublisher.publishStatusUpdated).toHaveBeenCalledWith(
         'order-1',

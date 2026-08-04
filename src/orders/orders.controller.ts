@@ -18,6 +18,7 @@ import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { OrderQueryDto } from './dto/order-query.dto';
 import { OrderResponseDto } from './dto/order-response.dto';
 import { UseGuards } from '@nestjs/common';
+import { ParseCuidPipe } from '../common/pipes/parse-cuid.pipe';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -78,7 +79,7 @@ export class OrdersController {
   })
   @ApiResponse({ status: 404, description: 'Order not found' })
   async findOne(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @CurrentUser() user: { userId: string; role: Role },
   ): Promise<OrderResponseDto> {
     const order = await this.ordersService.findById(id, user);
@@ -96,7 +97,7 @@ export class OrdersController {
   @ApiResponse({ status: 404, description: 'Order not found' })
   @ApiResponse({ status: 409, description: 'Order cannot be modified' })
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() updateOrderDto: UpdateOrderDto,
     @CurrentUser() user: { userId: string; role: Role },
   ): Promise<OrderResponseDto> {
@@ -117,7 +118,7 @@ export class OrdersController {
   @ApiResponse({ status: 404, description: 'Order not found' })
   @ApiResponse({ status: 409, description: 'Order cannot be cancelled' })
   async cancel(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @CurrentUser() user: { userId: string; role: Role },
   ): Promise<OrderResponseDto> {
     const order = await this.ordersService.cancelOrder(id, user);
@@ -136,7 +137,7 @@ export class OrdersController {
   @ApiResponse({ status: 404, description: 'Order not found' })
   @ApiResponse({ status: 409, description: 'Invalid status transition' })
   async updateStatus(
-    @Param('id') id: string,
+    @Param('id', ParseCuidPipe) id: string,
     @Body() dto: UpdateOrderStatusDto,
   ): Promise<OrderResponseDto> {
     const order = await this.ordersService.updateOrderStatus(id, dto);

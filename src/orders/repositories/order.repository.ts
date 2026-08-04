@@ -55,5 +55,6 @@ export abstract class OrderRepository {
   abstract updateStatus(
     id: string,
     status: OrderStatus,
+    expectedCurrentStatus?: OrderStatus,
   ): Promise<OrderWithItems>;
 }
