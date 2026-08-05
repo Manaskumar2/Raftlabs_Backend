@@ -9,7 +9,10 @@ export class OrderItemResponseDto {
   menuItemId: string;
 
   @ApiProperty()
-  menuItemName: string;
+  menuItem: {
+    name: string;
+    imageUrl: string;
+  };
 
   @ApiProperty()
   quantity: number;
@@ -70,7 +73,10 @@ export class OrderResponseDto {
       const itemDto = new OrderItemResponseDto();
       itemDto.id = item.id;
       itemDto.menuItemId = item.menuItemId;
-      itemDto.menuItemName = item.menuItem.name;
+      itemDto.menuItem = {
+        name: item.menuItem.name,
+        imageUrl: item.menuItem.imageUrl,
+      };
       itemDto.quantity = item.quantity;
       itemDto.unitPrice = item.unitPrice.toString();
       itemDto.subtotal = item.subtotal.toString();
