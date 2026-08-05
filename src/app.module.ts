@@ -7,8 +7,6 @@ import { MenuModule } from './menu/menu.module';
 import { OrdersModule } from './orders/orders.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { HealthModule } from './health/health.module';
-import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
 import appConfig from './config/app.config';
 import { envValidationSchema } from './config/env.validation';
 
@@ -35,8 +33,6 @@ import { envValidationSchema } from './config/env.validation';
     OrdersModule,
     RealtimeModule,
     HealthModule,
-    UsersModule,
-    AuthModule,
   ],
 })
 export class AppModule {}

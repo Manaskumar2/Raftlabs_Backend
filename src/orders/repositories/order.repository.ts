@@ -12,7 +12,7 @@ export interface CreateOrderData {
   customerName: string;
   deliveryAddress: string;
   phoneNumber: string;
-  userId: string;
+  idempotencyKey: string;
   totalAmount: Decimal;
   items: Array<{
     menuItemId: string;
@@ -32,7 +32,7 @@ export interface FindAllParams {
   page: number;
   limit: number;
   status?: OrderStatus;
-  userId?: string;
+  phoneNumber?: string;
 }
 
 export interface PaginatedResult<T> {
@@ -51,6 +51,7 @@ export abstract class OrderRepository {
     params: FindAllParams,
   ): Promise<PaginatedResult<OrderWithItems>>;
   abstract findById(id: string): Promise<OrderWithItems | null>;
+  abstract findByIdempotencyKey(key: string): Promise<OrderWithItems | null>;
   abstract update(id: string, data: UpdateOrderData): Promise<OrderWithItems>;
   abstract updateStatus(
     id: string,

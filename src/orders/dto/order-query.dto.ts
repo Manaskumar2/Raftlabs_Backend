@@ -8,4 +8,8 @@ export class OrderQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsEnum(OrderStatus)
   status?: OrderStatus;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  phoneNumber?: string;
 }

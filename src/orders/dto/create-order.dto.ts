@@ -38,4 +38,9 @@ export class CreateOrderDto {
   @ValidateNested({ each: true })
   @Type(() => CreateOrderItemDto)
   items: CreateOrderItemDto[];
+
+  @ApiProperty({ description: 'Idempotency key to prevent duplicate orders' })
+  @IsString()
+  @IsNotEmpty()
+  idempotencyKey: string;
 }

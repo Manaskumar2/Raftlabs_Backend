@@ -15,24 +15,6 @@ enum OrderStatus {
   CANCELLED
 }
 
-enum Role {
-  CUSTOMER
-  ADMIN
-}
-
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name      String
-  role      Role     @default(CUSTOMER)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  orders    Order[]
-
-  @@map("users")
-}
-
 model MenuItem {
   id          String      @id @default(cuid())
   name        String
@@ -54,14 +36,13 @@ model Order {
   phoneNumber     String      @map("phone_number")
   status          OrderStatus @default(ORDER_RECEIVED)
   totalAmount     Decimal     @db.Decimal(10, 2) @map("total_amount")
-  userId          String      @map("user_id")
+  idempotencyKey  String?     @unique @map("idempotency_key")
   createdAt       DateTime    @default(now()) @map("created_at")
   updatedAt       DateTime    @updatedAt @map("updated_at")
   items           OrderItem[]
-  user            User        @relation(fields: [userId], references: [id], onDelete: Restrict)
 
   @@index([status])
-  @@index([userId])
+  @@index([phoneNumber])
   @@index([createdAt])
   @@map("orders")
 }

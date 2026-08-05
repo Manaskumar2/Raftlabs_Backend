@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, ConflictException } from '@nestjs/common';
 import { OrderStatus } from '@prisma/client';
 
 import { MenuService } from '../menu/menu.service';
@@ -21,7 +21,6 @@ import {
   OrderCannotBeModifiedException,
   OrderCannotBeCancelledException,
 } from './exceptions';
-import { Role } from '@prisma/client';
 import { ForbiddenException } from '@nestjs/common';
 
 @Injectable()
@@ -37,7 +36,16 @@ export class OrdersService {
     private readonly statusSimulatorService: StatusSimulatorService,
   ) {}
 
-  async createOrder(dto: CreateOrderDto, userId: string): Promise<OrderWithItems> {
+  async createOrder(dto: CreateOrderDto): Promise<OrderWithItems> {
+    // 0. Check for Idempotency
+    if (dto.idempotencyKey) {
+      const existingOrder = await this.orderRepository.findByIdempotencyKey(dto.idempotencyKey);
+      if (existingOrder) {
+        this.logger.log(`Idempotent order request matched: ${existingOrder.id}`);
+        return existingOrder;
+      }
+    }
+
     // 1. Merge duplicate items
     const mergedItemsMap = new Map<string, number>();
     for (const item of dto.items) {
@@ -95,7 +103,7 @@ export class OrdersService {
       customerName: dto.customerName,
       deliveryAddress: dto.deliveryAddress,
       phoneNumber: dto.phoneNumber,
-      userId,
+      idempotencyKey: dto.idempotencyKey,
       totalAmount,
       items: orderItemsData,
     });
@@ -122,22 +130,23 @@ export class OrdersService {
       page,
       limit,
       status: query.status,
+      phoneNumber: query.phoneNumber,
     });
   }
 
-  async findById(id: string, user?: { userId: string; role: Role }): Promise<OrderWithItems> {
+  async findById(id: string, phoneNumber?: string): Promise<OrderWithItems> {
     const order = await this.orderRepository.findById(id);
     if (!order) {
       throw new OrderNotFoundException(id);
     }
-    if (user && user.role === Role.CUSTOMER && order.userId !== user.userId) {
+    if (phoneNumber && order.phoneNumber !== phoneNumber) {
       throw new ForbiddenException('You do not have permission to access this order');
     }
     return order;
   }
 
-  async updateOrder(id: string, dto: UpdateOrderDto, user: { userId: string; role: Role }): Promise<OrderWithItems> {
-    const order = await this.findById(id, user);
+  async updateOrder(id: string, dto: UpdateOrderDto, phoneNumber?: string): Promise<OrderWithItems> {
+    const order = await this.findById(id, phoneNumber);
 
     if (!this.statusPolicy.canModify(order.status)) {
       throw new OrderCannotBeModifiedException(order.status);
@@ -149,8 +158,8 @@ export class OrdersService {
     return updatedOrder;
   }
 
-  async cancelOrder(id: string, user: { userId: string; role: Role }): Promise<OrderWithItems> {
-    const order = await this.findById(id, user);
+  async cancelOrder(id: string, phoneNumber?: string): Promise<OrderWithItems> {
+    const order = await this.findById(id, phoneNumber);
 
     if (!this.statusPolicy.canCancel(order.status)) {
       throw new OrderCannotBeCancelledException(order.status);

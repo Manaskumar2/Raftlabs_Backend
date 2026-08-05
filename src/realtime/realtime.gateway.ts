@@ -8,7 +8,6 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { Server, Socket } from 'socket.io';
 import { OrderStatus } from '@prisma/client';
 
@@ -31,25 +30,8 @@ export class RealtimeGateway
 
   private readonly logger = new Logger(RealtimeGateway.name);
 
-  constructor(private readonly jwtService: JwtService) {}
-
   handleConnection(client: Socket): void {
-    const auth = client.handshake.auth?.token || client.handshake.headers?.authorization;
-    let token = '';
-    if (auth && auth.startsWith('Bearer ')) {
-      token = auth.split(' ')[1];
-    } else {
-      token = auth || '';
-    }
-
-    try {
-      const payload = this.jwtService.verify(token, { secret: process.env.JWT_SECRET || 'super-secret' });
-      client.data.user = payload;
-      this.logger.log(`Client connected: ${client.id} as user ${payload.sub}`);
-    } catch {
-      this.logger.error(`Unauthorized client disconnected: ${client.id}`);
-      client.disconnect();
-    }
+    this.logger.log(`Client connected: ${client.id}`);
   }
 
   handleDisconnect(client: Socket): void {

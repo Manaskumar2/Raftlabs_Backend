@@ -17,19 +17,10 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { OrderQueryDto } from './dto/order-query.dto';
 import { OrderResponseDto } from './dto/order-response.dto';
-import { UseGuards } from '@nestjs/common';
 import { ParseCuidPipe } from '../common/pipes/parse-cuid.pipe';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { Role } from '@prisma/client';
-import { ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiTags('Orders')
 @Controller('api/v1/orders')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@ApiBearerAuth()
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
@@ -46,9 +37,8 @@ export class OrdersController {
   @ApiResponse({ status: 422, description: 'Menu item unavailable' })
   async create(
     @Body() createOrderDto: CreateOrderDto,
-    @CurrentUser() user: { userId: string; role: Role },
   ): Promise<OrderResponseDto> {
-    const order = await this.ordersService.createOrder(createOrderDto, user.userId);
+    const order = await this.ordersService.createOrder(createOrderDto);
     return OrderResponseDto.fromEntity(order);
   }
 
@@ -57,12 +47,8 @@ export class OrdersController {
   @ApiResponse({ status: 200, description: 'Paginated list of orders' })
   async findAll(
     @Query() query: OrderQueryDto,
-    @CurrentUser() user: { userId: string; role: Role },
   ) {
-    const result = await this.ordersService.findAll({
-      ...query,
-      userId: user.role === Role.CUSTOMER ? user.userId : undefined,
-    } as any);
+    const result = await this.ordersService.findAll(query);
     return {
       data: result.data.map((order) => OrderResponseDto.fromEntity(order)),
       meta: result.meta,
@@ -80,9 +66,9 @@ export class OrdersController {
   @ApiResponse({ status: 404, description: 'Order not found' })
   async findOne(
     @Param('id', ParseCuidPipe) id: string,
-    @CurrentUser() user: { userId: string; role: Role },
+    @Query('phoneNumber') phoneNumber?: string,
   ): Promise<OrderResponseDto> {
-    const order = await this.ordersService.findById(id, user);
+    const order = await this.ordersService.findById(id, phoneNumber);
     return OrderResponseDto.fromEntity(order);
   }
 
@@ -99,9 +85,9 @@ export class OrdersController {
   async update(
     @Param('id', ParseCuidPipe) id: string,
     @Body() updateOrderDto: UpdateOrderDto,
-    @CurrentUser() user: { userId: string; role: Role },
+    @Query('phoneNumber') phoneNumber?: string,
   ): Promise<OrderResponseDto> {
-    const order = await this.ordersService.updateOrder(id, updateOrderDto, user);
+    const order = await this.ordersService.updateOrder(id, updateOrderDto, phoneNumber);
     return OrderResponseDto.fromEntity(order);
   }
 
@@ -119,14 +105,13 @@ export class OrdersController {
   @ApiResponse({ status: 409, description: 'Order cannot be cancelled' })
   async cancel(
     @Param('id', ParseCuidPipe) id: string,
-    @CurrentUser() user: { userId: string; role: Role },
+    @Query('phoneNumber') phoneNumber?: string,
   ): Promise<OrderResponseDto> {
-    const order = await this.ordersService.cancelOrder(id, user);
+    const order = await this.ordersService.cancelOrder(id, phoneNumber);
     return OrderResponseDto.fromEntity(order);
   }
 
   @Patch(':id/status')
-  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Update order status (admin operation)' })
   @ApiParam({ name: 'id', description: 'Order ID' })
   @ApiResponse({

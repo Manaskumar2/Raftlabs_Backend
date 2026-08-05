@@ -5,10 +5,8 @@ import { OrderEventPublisher } from './order-event-publisher';
 import { EventEmitterPublisher } from './event-emitter-publisher';
 import { OrderEventListenerService } from './order-event-listener.service';
 
-import { AuthModule } from '../auth/auth.module';
-
 @Module({
-  imports: [EventEmitterModule.forRoot(), AuthModule],
+  imports: [EventEmitterModule.forRoot()],
   providers: [
     RealtimeGateway,
     {

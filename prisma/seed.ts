@@ -11,7 +11,7 @@ async function main() {
       name: 'Margherita Pizza',
       description: 'Classic cheese and tomato pizza with fresh basil',
       price: 299.00,
-      imageUrl: 'https://placehold.co/400x300?text=Margherita+Pizza',
+      imageUrl: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=800&q=80',
       isAvailable: true,
     },
     {
@@ -19,7 +19,7 @@ async function main() {
       name: 'Classic Cheeseburger',
       description: 'Juicy beef patty with cheese, lettuce, and tomato',
       price: 199.00,
-      imageUrl: 'https://placehold.co/400x300?text=Classic+Cheeseburger',
+      imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80',
       isAvailable: true,
     },
     {
@@ -27,7 +27,7 @@ async function main() {
       name: 'Penne Arrabbiata',
       description: 'Spicy tomato sauce with garlic and fresh herbs',
       price: 249.00,
-      imageUrl: 'https://placehold.co/400x300?text=Penne+Arrabbiata',
+      imageUrl: 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=800&q=80',
       isAvailable: true,
     },
     {
@@ -35,7 +35,7 @@ async function main() {
       name: 'Chicken Biryani',
       description: 'Aromatic basmati rice cooked with tender chicken and spices',
       price: 349.00,
-      imageUrl: 'https://placehold.co/400x300?text=Chicken+Biryani',
+      imageUrl: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800&q=80',
       isAvailable: true,
     },
     {
@@ -43,7 +43,7 @@ async function main() {
       name: 'California Roll',
       description: 'Crab meat, avocado, and cucumber rolled in seaweed and rice',
       price: 499.00,
-      imageUrl: 'https://placehold.co/400x300?text=California+Roll',
+      imageUrl: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800&q=80',
       isAvailable: false, // Testing unavailable item
     },
     {
@@ -51,7 +51,7 @@ async function main() {
       name: 'Chicken Tacos',
       description: 'Three soft corn tortillas with grilled chicken, salsa, and lime',
       price: 279.00,
-      imageUrl: 'https://placehold.co/400x300?text=Chicken+Tacos',
+      imageUrl: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=800&q=80',
       isAvailable: true,
     },
     {
@@ -59,7 +59,7 @@ async function main() {
       name: 'Pad Thai',
       description: 'Stir-fried rice noodles with eggs, peanuts, and bean sprouts',
       price: 329.00,
-      imageUrl: 'https://placehold.co/400x300?text=Pad+Thai',
+      imageUrl: 'https://images.unsplash.com/photo-1559314809-0d155014e29e?w=800&q=80',
       isAvailable: true,
     },
     {
@@ -67,7 +67,7 @@ async function main() {
       name: 'Butter Chicken',
       description: 'Tender chicken in a rich, creamy tomato gravy',
       price: 399.00,
-      imageUrl: 'https://placehold.co/400x300?text=Butter+Chicken',
+      imageUrl: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=800&q=80',
       isAvailable: true,
     },
     {
@@ -75,7 +75,7 @@ async function main() {
       name: 'Caesar Salad',
       description: 'Crisp romaine lettuce with croutons, parmesan, and Caesar dressing',
       price: 229.00,
-      imageUrl: 'https://placehold.co/400x300?text=Caesar+Salad',
+      imageUrl: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?w=800&q=80',
       isAvailable: true,
     },
     {
@@ -83,7 +83,7 @@ async function main() {
       name: 'New York Cheesecake',
       description: 'Classic creamy cheesecake with a graham cracker crust',
       price: 189.00,
-      imageUrl: 'https://placehold.co/400x300?text=New+York+Cheesecake',
+      imageUrl: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=800&q=80',
       isAvailable: true,
     },
   ];
@@ -109,36 +109,6 @@ async function main() {
     });
     console.log(`Upserted menu item: ${item.name}`);
   }
-
-  const bcrypt = require('bcrypt');
-  const salt = await bcrypt.genSalt(10);
-  const passwordHash = await bcrypt.hash('password123', salt);
-
-  await prisma.user.upsert({
-    where: { email: 'admin@example.com' },
-    update: {},
-    create: {
-      id: 'admin-1',
-      email: 'admin@example.com',
-      password: passwordHash,
-      name: 'Admin User',
-      role: 'ADMIN',
-    },
-  });
-  console.log('Upserted Admin user');
-
-  await prisma.user.upsert({
-    where: { email: 'customer@example.com' },
-    update: {},
-    create: {
-      id: 'customer-1',
-      email: 'customer@example.com',
-      password: passwordHash,
-      name: 'Customer User',
-      role: 'CUSTOMER',
-    },
-  });
-  console.log('Upserted Customer user');
 
   console.log('Seed completed successfully!');
 }

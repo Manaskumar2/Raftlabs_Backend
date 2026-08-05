@@ -21,8 +21,8 @@ export class PrismaOrderRepository implements OrderRepository {
           customerName: data.customerName,
           deliveryAddress: data.deliveryAddress,
           phoneNumber: data.phoneNumber,
+          idempotencyKey: data.idempotencyKey,
           totalAmount: data.totalAmount,
-          userId: data.userId,
           status: OrderStatus.ORDER_RECEIVED,
         },
       });
@@ -47,12 +47,12 @@ export class PrismaOrderRepository implements OrderRepository {
   async findAll(
     params: FindAllParams,
   ): Promise<PaginatedResult<OrderWithItems>> {
-    const { page, limit, status, userId } = params;
+    const { page, limit, status, phoneNumber } = params;
     const skip = (page - 1) * limit;
 
     const where: any = {};
     if (status) where.status = status;
-    if (userId) where.userId = userId;
+    if (phoneNumber) where.phoneNumber = phoneNumber;
 
     const [total, data] = await Promise.all([
       this.prisma.order.count({ where }),
@@ -79,6 +79,13 @@ export class PrismaOrderRepository implements OrderRepository {
   async findById(id: string): Promise<OrderWithItems | null> {
     return this.prisma.order.findUnique({
       where: { id },
+      include: { items: { include: { menuItem: true } } },
+    });
+  }
+
+  async findByIdempotencyKey(key: string): Promise<OrderWithItems | null> {
+    return this.prisma.order.findUnique({
+      where: { idempotencyKey: key },
       include: { items: { include: { menuItem: true } } },
     });
   }
