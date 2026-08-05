@@ -14,6 +14,16 @@ services:
         value: production
       - key: CORS_ORIGIN
         value: "*"
+      - key: STATUS_PREPARING_DELAY
+        value: "60000"
+      - key: STATUS_DELIVERY_DELAY
+        value: "60000"
+      - key: STATUS_DELIVERED_DELAY
+        value: "60000"
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRATION
+        value: "1d"
 databases:
   - name: raftlabs-db
     plan: free
