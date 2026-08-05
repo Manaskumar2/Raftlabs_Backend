@@ -20,10 +20,6 @@ services:
         value: "60000"
       - key: STATUS_DELIVERED_DELAY
         value: "60000"
-      - key: JWT_SECRET
-        sync: false
-      - key: JWT_EXPIRATION
-        value: "1d"
 databases:
   - name: raftlabs-db
     plan: free
