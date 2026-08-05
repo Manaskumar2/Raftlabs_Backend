@@ -18,6 +18,7 @@ export class PrismaOrderRepository implements OrderRepository {
     return this.prisma.$transaction(async (tx) => {
       const order = await tx.order.create({
         data: {
+          ...(data.id ? { id: data.id } : {}),
           customerName: data.customerName,
           deliveryAddress: data.deliveryAddress,
           phoneNumber: data.phoneNumber,
@@ -47,12 +48,19 @@ export class PrismaOrderRepository implements OrderRepository {
   async findAll(
     params: FindAllParams,
   ): Promise<PaginatedResult<OrderWithItems>> {
-    const { page, limit, status, phoneNumber } = params;
+    const { page, limit, status, phoneNumber, search } = params;
     const skip = (page - 1) * limit;
 
     const where: any = {};
     if (status) where.status = status;
     if (phoneNumber) where.phoneNumber = phoneNumber;
+    if (search) {
+      const cleanSearch = search.replace(/^#?RL-/i, '');
+      where.OR = [
+        { id: { contains: cleanSearch, mode: 'insensitive' } },
+        { customerName: { contains: search, mode: 'insensitive' } }
+      ];
+    }
 
     const [total, data] = await Promise.all([
       this.prisma.order.count({ where }),

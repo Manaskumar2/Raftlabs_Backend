@@ -1,5 +1,6 @@
 import { Injectable, Logger, ConflictException } from '@nestjs/common';
 import { OrderStatus } from '@prisma/client';
+import * as crypto from 'crypto';
 
 import { MenuService } from '../menu/menu.service';
 import {
@@ -98,8 +99,12 @@ export class OrdersService {
       })),
     );
 
+    // 7. Generate Premium Order ID
+    const generatedId = `RL-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+
     // 8. Call orderRepository.create
     const createdOrder = await this.orderRepository.create({
+      id: generatedId,
       customerName: dto.customerName,
       deliveryAddress: dto.deliveryAddress,
       phoneNumber: dto.phoneNumber,
@@ -131,6 +136,7 @@ export class OrdersService {
       limit,
       status: query.status,
       phoneNumber: query.phoneNumber,
+      search: query.search,
     });
   }
 

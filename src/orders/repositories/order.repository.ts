@@ -9,6 +9,7 @@ export type OrderWithItems = Order & {
 };
 
 export interface CreateOrderData {
+  id?: string;
   customerName: string;
   deliveryAddress: string;
   phoneNumber: string;
@@ -33,6 +34,7 @@ export interface FindAllParams {
   limit: number;
   status?: OrderStatus;
   phoneNumber?: string;
+  search?: string;
 }
 
 export interface PaginatedResult<T> {
