@@ -104,13 +104,14 @@ describe('OrdersService', () => {
       deliveryAddress: '123 Main St',
       phoneNumber: '+1234567890',
       items: [{ menuItemId: 'menu-1', quantity: 2 }],
+      idempotencyKey: 'test-idempotency-key',
     };
 
     it('creates order successfully with correct pricing', async () => {
       menuService.findByIds.mockResolvedValue([mockMenuItem]);
       orderRepository.create.mockResolvedValue(mockOrderWithItems);
 
-      const result = await service.createOrder(createDto, 'user-1');
+      const result = await service.createOrder(createDto);
 
       expect(menuService.findByIds).toHaveBeenCalledWith(['menu-1']);
       expect(orderRepository.create).toHaveBeenCalledWith(
@@ -145,7 +146,7 @@ describe('OrdersService', () => {
         ],
       };
 
-      await service.createOrder(duplicateDto, 'user-1');
+      await service.createOrder(duplicateDto);
 
       expect(orderRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -164,7 +165,7 @@ describe('OrdersService', () => {
         items: [{ menuItemId: 'invalid-id', quantity: 1 }],
       };
 
-      await expect(service.createOrder(dto, 'user-1')).rejects.toThrow(
+      await expect(service.createOrder(dto)).rejects.toThrow(
         MenuItemNotFoundException,
       );
     });
@@ -173,7 +174,7 @@ describe('OrdersService', () => {
       const unavailableItem = { ...mockMenuItem, isAvailable: false };
       menuService.findByIds.mockResolvedValue([unavailableItem]);
 
-      await expect(service.createOrder(createDto, 'user-1')).rejects.toThrow(
+      await expect(service.createOrder(createDto)).rejects.toThrow(
         MenuItemUnavailableException,
       );
     });
@@ -182,7 +183,7 @@ describe('OrdersService', () => {
       menuService.findByIds.mockResolvedValue([mockMenuItem]);
       orderRepository.create.mockResolvedValue(mockOrderWithItems);
 
-      await service.createOrder(createDto, 'user-1');
+      await service.createOrder(createDto);
 
       // Verify the total amount passed to create is computed by PriceCalculator
       const createCall = orderRepository.create.mock.calls[0][0];
@@ -219,7 +220,7 @@ describe('OrdersService', () => {
       };
       orderRepository.update.mockResolvedValue(updatedOrder);
 
-      const result = await service.updateOrder('order-1', { deliveryAddress: 'New Address' }, { userId: 'user-1', role: 'CUSTOMER' as any });
+      const result = await service.updateOrder('order-1', { deliveryAddress: 'New Address' }, '+1234567890');
 
       expect(orderRepository.update).toHaveBeenCalledWith('order-1', {
         deliveryAddress: 'New Address',
@@ -235,7 +236,7 @@ describe('OrdersService', () => {
       orderRepository.findById.mockResolvedValue(preparingOrder);
 
       await expect(
-        service.updateOrder('order-1', { deliveryAddress: 'New Address' }, { userId: 'user-1', role: 'CUSTOMER' as any }),
+        service.updateOrder('order-1', { deliveryAddress: 'New Address' }, '+1234567890'),
       ).rejects.toThrow(OrderCannotBeModifiedException);
     });
   });
@@ -250,7 +251,7 @@ describe('OrdersService', () => {
       };
       orderRepository.updateStatus.mockResolvedValue(cancelledOrder);
 
-      const result = await service.cancelOrder('order-1', { userId: 'user-1', role: 'CUSTOMER' as any });
+      const result = await service.cancelOrder('order-1', '+1234567890');
 
       expect(statusSimulator.cancelSimulation).toHaveBeenCalledWith('order-1');
       expect(orderRepository.updateStatus).toHaveBeenCalledWith(
@@ -279,7 +280,7 @@ describe('OrdersService', () => {
       };
       orderRepository.updateStatus.mockResolvedValue(cancelledOrder);
 
-      const result = await service.cancelOrder('order-1', { userId: 'user-1', role: 'CUSTOMER' as any });
+      const result = await service.cancelOrder('order-1', '+1234567890');
 
       expect(orderRepository.updateStatus).toHaveBeenCalledWith(
         'order-1',
@@ -296,7 +297,7 @@ describe('OrdersService', () => {
       };
       orderRepository.findById.mockResolvedValue(deliveredOrder);
 
-      await expect(service.cancelOrder('order-1', { userId: 'user-1', role: 'CUSTOMER' as any })).rejects.toThrow(
+      await expect(service.cancelOrder('order-1', '+1234567890')).rejects.toThrow(
         OrderCannotBeCancelledException,
       );
     });
