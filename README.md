@@ -75,15 +75,6 @@ npm run test
 npm run test:e2e
 ```
 
-## Documentation Links
-- [High-Level Design](docs/HLD.md)
-- [Low-Level Design](docs/LLD.md)
-- [Database Schema](docs/DATABASE.md)
-- [API Reference](docs/API.md)
-- [Architecture Decisions](docs/DECISIONS.md)
-
-API Swagger documentation is available at `/api/docs` when the server is running.
-
 ## Order Lifecycle
 
 ```mermaid
@@ -105,6 +96,3 @@ For a true production environment, the following improvements are recommended:
 2. **Durable Message Queues:** Replace in-memory timers with BullMQ/Redis for resilient background processing.
 3. **Horizontal Scaling:** Utilize Redis adapter for Socket.IO to support multiple backend instances.
 4. **Monitoring:** Implement Prometheus metrics and centralized logging.
-
-## AI Usage Note
-AI tools were utilized during the development of this project for architecture validation, boilerplate generation, and documentation assistance. For full details, see [AI Usage Documentation](docs/AI_USAGE.md). All decisions and code are fully understood and owned by the developer.
